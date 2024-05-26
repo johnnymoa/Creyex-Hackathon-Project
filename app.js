@@ -153,6 +153,7 @@ app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userControl
 
 app.get('/creation/new',passportConfig.isAuthenticated,creationController.new)
 
+//integrated multiple endpoints, not sure what to do with this yet
 app.post('/creation/send-message',passportConfig.isAuthenticated, creationController.sendMessage)
 app.post('/creation/som',passportConfig.isAuthenticated, creationController.sendOpenMessage)
 app.post('/creation/sqm',passportConfig.isAuthenticated, creationController.sendGroqMessage)
