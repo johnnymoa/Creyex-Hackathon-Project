@@ -1,0 +1,82 @@
+extends layout
+
+block head
+  if !user
+    style.
+      body {
+        background: linear-gradient(
+          45deg,
+          #FF83D1,
+          #DACAFF,
+          #FF8276,
+          #9658D4,
+          #FFC36C
+        );
+      }
+
+block content
+  if !user
+    .container-fluid
+      .row.align-items-center
+        .col-md-6
+          .banner-content(style="padding: 50px;")
+            h1.display-4 Ditch the Code, Embrace Creativity!
+            p.lead.mt-3 Effortlessly generate websites, minigames, landing pages, resumes, and more. Perfect for non-technical creatives looking to bring their ideas to life with ease.
+            a(href="/login" class="btn btn-primary btn-lg mt-4") Start Creating
+        .col-md-6
+          img(src="logo.png" alt="Banner Image" style="max-width: 100%; height: auto; border-radius: 10px;")
+  else 
+    .container
+      .row.my-5
+        .col-12.text-center
+          h1 Welcome to Creyex
+          p.lead Discover and create amazing projects with AI-powered guides
+
+      .row.mt-4
+        .col-12.d-flex.justify-content-between.align-items-center
+          h2 Featured Guides
+          //- a(href="/guides/new" class="btn btn-outline-primary") Create New guide
+      .row#guide-container
+        each guide in guides
+          .col-md-4.mb-4
+            .card(style="border-radius: 10px; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between;")
+              .card-body(style="flex: 1;")
+                h5.card-title= guide.title
+                p.card-text(style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; max-height: 4.5em;")= guide.description
+                p.text-muted Author: #{guide.author.profile.name}
+                .d-flex.justify-content-start.mt-2(style="margin-top: auto;")
+                  a(href=`/creation/new?guide=${guide.id}` class="btn btn-outline-primary btn-sm me-2") Use
+        .col-md-4.mb-4
+            .card(style="border-radius: 10px; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between;")
+              .card-body(style="flex: 1;")
+                h5.card-title Got an idea?
+                p.card-text(style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; max-height: 4.5em;") Bring new guides to life to enhance your creative workflow.
+                //- p.text-muted Author: #{guide.author.profile.name}
+                br
+                br
+                .d-flex.justify-content-start.mt-2(style="margin-top: auto;")
+                  a(href="mailto:johnny.moacdieh@gmail.com" class="btn btn-outline-primary btn-sm me-2") Suggest New Guide
+                  a(href=`/guides/new` class="btn btn-outline-primary btn-sm me-2") Create New Guide
+
+      .row.mt-4
+        .col-12
+          h2 Featured Creations
+      .row#creation-container
+        each creation in creations
+          .col-md-4.mb-4
+            .card(style="border-radius: 10px; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between;")
+              .card-body(style="flex: 1;")
+                h5.card-title= creation.title
+                p.card-text Based on guide: #{creation.guide.title}
+                p.text-muted Author: #{creation.author.profile.name}
+                .d-flex.justify-content-start.mt-2(style="margin-top: auto;")
+                  a(target="_blank" href=`/creation/preview?creation=${creation.id}` class="btn btn-outline-primary btn-sm me-2") Preview
+                  a(href=`/creation/new?src=${creation.id}` class="btn btn-outline-primary btn-sm me-2" ) Adapt
+                  //- a(href="/creations/#{creation._id}/delete" class="btn btn-outline-danger btn-sm") Delete
+
+      .row.mt-5
+        .col-12.text-center
+          a(href="/logout" class="btn btn-outline-danger btn-lg") Logout
+        br
+        br
+        br

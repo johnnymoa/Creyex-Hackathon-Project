@@ -1,0 +1,22 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-center
+    .card.p-4
+      .card-body
+        h3.text-center.mb-4 Sign up
+        form(id='signup-form', method='POST')
+          input(type='hidden', name='_csrf', value=_csrf)
+          .form-group.mb-3
+            label.col-form-label.font-weight-bold(for='email') Email
+            input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, autocomplete='email', required)
+          .form-group.mb-3
+            label.col-form-label.font-weight-bold(for='password') Password
+            input.form-control(type='password', name='password', id='password', placeholder='Password', autocomplete='new-password', minlength='8', required)
+          .form-group.mb-3
+            label.col-form-label.font-weight-bold(for='confirmPassword') Confirm Password
+            input.form-control(type='password', name='confirmPassword', id='confirmPassword', placeholder='Confirm Password', autocomplete='new-password', minlength='8', required)
+          .form-group.text-center
+            button.btn.btn-success(type='submit')
+              i.fas.fa-user-plus.fa-sm.iconpadding
+              | Signup

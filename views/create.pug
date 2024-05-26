@@ -1,0 +1,316 @@
+extends layout
+
+block content
+  .container
+    .row
+      .col-12
+        .d-flex.justify-content-between.align-items-center(style="width: 100%; height: 50px; background-color: #fff; border: 1px solid #dee2e6; border-radius: 10px; padding: 10px;")
+          // Left-hand side template name with hover description
+          .d-flex.align-items-center
+            span.position-relative
+              span.template-name(style="cursor: pointer;")
+                | Guide: #{guide.title}
+                if creation
+                  .ml-3
+                  | Source: #{creation.title} by #{creation.author.profile.name}
+                //I want the if to end here
+                span.position-absolute.info-tooltip(style="visibility: hidden; width: 200px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s;")
+                  | #{guide.description}
+                  span.position-absolute(style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background-color: #555; transform: rotate(45deg);")
+              i.fa.fa-info-circle.ms-2
+          // Right-hand side action buttons
+          .d-flex
+            button#publish-btn.btn.btn-primary.me-2 Publish
+
+    .row.mt-3
+      .col-md-4
+        .chat-area(style="height: 85vh; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between;")
+          .chat-messages(style="flex: 1; overflow-y: auto; padding: 10px;")
+            // Messages will be appended here
+          .text-area(style="padding: 10px; background-color: #f8f9fa; border-top: 1px solid #dee2e6; display: flex; align-items: center;")
+            input#chat-input.form-control.me-2(type="text" placeholder="Turn your ideas into reality")
+            button#send-btn.btn.btn-primary Send
+            .loader(style="display: none; text-align: center; margin-left: 10px;")
+              .spinner-border.text-primary(role="status")
+                span.sr-only Loading...
+      .col-md-8
+        .iframe-area(style="height: 85vh; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 0;")
+          iframe(id="previewFrame" src="about:blank" style="width: 100%; height: 100%; border: none; border-radius: 10px;")
+
+  // Modal for entering the creation name
+  .modal#creationModal(tabindex="-1" role="dialog")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title Enter Creation Name
+          button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+        .modal-body
+          input#creation-name.form-control(type="text" placeholder="Enter name for your creation")
+        .modal-footer
+          button#submit-creation-btn.btn.btn-primary(type="button") Submit
+
+  style.
+    code {
+      display: block;
+      padding: 10px;
+      font-family: Monaco, monospace;
+      background-color: #002b36;
+      color: #d7e3e5;
+      border-radius: 5px;
+      white-space: pre;
+      overflow: auto;
+    }
+    iframe {
+      border: none;
+      overflow: auto;
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
+    .info-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #555 transparent;
+    }
+    .template-name:hover + .info-tooltip,
+    .template-name:hover .info-tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    .placeholder:hover {
+      cursor: pointer;
+      background-color: #e9ecef;
+    }
+
+  script.
+    let applets = [];
+    let selectedApplet;
+
+    function escapeHTMLExceptPreviewButtons(input) {
+      let safe_content = input.replace(/<[^>]*>/g, function (match) {
+          if (match.indexOf('<button pb="true"') === 0 || match.indexOf('</button>') === 0) {
+              return match;
+          } else {
+              return match.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          }
+      });
+      safe_content = backtickToCodeTag(safe_content);
+      return safe_content;
+    }
+
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+          var r = Math.random() * 16 | 0,
+              v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+      });
+    }
+
+    function findDelimitedItems(str, startDelimiter = "```html\n", endDelimiter = "```") {
+      str.replace("```HTML", "```html");
+      var regex = new RegExp(`${startDelimiter}(.*?)${endDelimiter}`, 'gs');
+      var matches = [];
+      var match;
+      while ((match = regex.exec(str)) !== null) {
+          matches.push(match[1]);
+      }
+      return matches;
+    }
+
+    function backtickToCodeTag(str) {
+      var count = 0;
+      return str.replace(/```/g, function () {
+        count += 1;
+        return count % 2 ? '<code>' : '</code>';
+      });
+      return str;
+    }
+
+    document.getElementById("chat-input").addEventListener("keydown", function (event) {
+      if (event.key === 'Enter' && !document.getElementById('send-btn').disabled) {
+          event.preventDefault();
+          document.getElementById('send-btn').click();
+      }
+    });
+
+    document.body.addEventListener("click", function (event) {
+      if (event.target.classList.contains("preview-button")) {
+          let iframe = document.getElementById("previewFrame");
+          let newIframe = document.createElement('iframe');
+          newIframe.id = 'previewFrame';
+          iframe.parentNode.replaceChild(newIframe, iframe);
+          iframe = document.getElementById("previewFrame");
+          iframe.contentWindow.document.open();
+          iframe.contentWindow.document.write(applets[event.target.id]);
+          selectedApplet = event.target.id;
+          iframe.contentWindow.document.close();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const chatInput = document.getElementById('chat-input');
+      const sendBtn = document.getElementById('send-btn');
+      const loader = document.querySelector('.loader');
+      const chatMessages = document.querySelector('.chat-messages');
+      var messageList = [];
+
+      const guideId = "#{guide.id}";
+      const srcCreationId = new URL(window.location.href).searchParams.get('src');
+
+
+      if(srcCreationId) {
+          let response = await fetch('/creation/previewRaw?creation='+srcCreationId, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'text/html',
+              }
+        });
+
+        response = await response.text();
+        response =  "```html\n"+response+"```";
+
+
+        messageList.push({
+          role : "user",
+          content: response
+        });
+
+        console.log(messageList);
+
+        let new_safe_content = response;
+        let items = findDelimitedItems(response);
+
+        for (let i = 0; i < items.length; i++) {
+            let uid = generateUUID();
+            new_safe_content = new_safe_content.replace("```html\n" + items[i] + "```", `<button pb="true" id="${uid}" class="preview-button btn btn-secondary">preview</button>`);
+            applets[uid] = items[i];
+        }
+
+        const p = document.createElement('p');
+        p.innerHTML = `user: ${escapeHTMLExceptPreviewButtons(new_safe_content)}`;
+        chatMessages.appendChild(p);
+
+        let buttons = document.getElementsByClassName("preview-button");
+        if (buttons.length > 0) {
+            var lastButton = buttons[buttons.length - 1];
+            lastButton.click();
+        }
+
+
+      }
+
+
+      sendBtn.addEventListener('click', async () => {
+        const message = chatInput.value.trim();
+        if (message) {
+          const p = document.createElement('p');
+          p.innerHTML = `you: ${escapeHTMLExceptPreviewButtons(message)}`;
+          chatMessages.appendChild(p);
+
+          messageList.push({ role: 'user', content: message });
+          chatInput.value = '';
+
+          sendBtn.style.display = 'none';
+          loader.style.display = 'block';
+          chatInput.disabled = true;
+          sendBtn.disabled = true;
+          
+
+          let uri = '/creation/send-message';
+
+
+          const modelPath = new URL(window.location.href).searchParams.get('mp');
+          if(modelPath && (modelPath=="som" || modelPath=="sqm"))uri = '/creation/'+ modelPath;
+
+          console.log (uri);
+
+          try {
+
+          const response = await fetch(uri, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ guideId, messageList })
+          });
+          const data = await response.json();
+          messageList = data.messageList;
+
+          loader.style.display = 'none';
+          sendBtn.style.display = 'block';
+          chatInput.disabled = false;
+          sendBtn.disabled = false;
+
+          // Append new chat messages
+
+            const lastMessage = messageList[messageList.length - 1];
+          if (lastMessage) {
+            let items = findDelimitedItems(lastMessage.content);
+            let new_safe_content = lastMessage.content;
+
+            for (let i = 0; i < items.length; i++) {
+                let uid = generateUUID();
+                new_safe_content = new_safe_content.replace("```html\n" + items[i] + "```", `<button pb="true" id="${uid}" class="preview-button btn btn-secondary">preview</button>`);
+                applets[uid] = items[i];
+            }
+
+            const p = document.createElement('p');
+            p.innerHTML = `guide: ${escapeHTMLExceptPreviewButtons(new_safe_content)}`;
+            chatMessages.appendChild(p);
+
+            let buttons = document.getElementsByClassName("preview-button");
+            if (buttons.length > 0) {
+                var lastButton = buttons[buttons.length - 1];
+                lastButton.click();
+            }
+          }
+
+          } catch {
+             const p = document.createElement('p');
+            p.innerHTML = `guide: There seem to be a technical issue, please try again later or contact support.`;
+            chatMessages.appendChild(p);
+          }
+
+          chatInput.value = '';
+          chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+        }
+      });
+
+      // Publish button click event
+      document.getElementById('publish-btn').addEventListener('click', () => {
+        if(selectedApplet)
+          $('#creationModal').modal('show');
+        else 
+          alert("You need to create something first!")
+      });
+
+      // Submit creation button click event
+      document.getElementById('submit-creation-btn').addEventListener('click', async () => {
+        const creationName = document.getElementById('creation-name').value.trim();
+        if (creationName && selectedApplet) {
+          const content = applets[selectedApplet];
+
+          const response = await fetch('/creation/new', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ guideId, creationName, content })
+          });
+
+          if (response.ok) {
+            $('#creationModal').modal('hide');
+            alert('Creation published successfully!');
+          } else {
+            alert('Failed to publish creation.');
+          }
+        } else {
+          alert('Please enter a creation name and select an applet to publish.');
+        }
+      });
+    });

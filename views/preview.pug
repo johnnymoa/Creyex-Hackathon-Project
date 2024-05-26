@@ -1,0 +1,43 @@
+doctype html
+html
+  head
+    title= creation.title
+    link(rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
+    style.
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+      }
+      iframe {
+        flex-grow: 1;
+        width: 100%;
+        border: none;
+      }
+    script.
+      function printIframeContent() {
+        var iframe = document.getElementById('contentFrame');
+        var iframeWindow = iframe.contentWindow;
+        iframeWindow.focus();
+        iframeWindow.print();
+      }
+  body
+    header
+      div
+        span.mr-3 #{creation.title}
+        span.text-muted Author: #{creation.author.profile.name}
+        button.btn.btn-outline-primary.btn-sm.ml-3(onclick="printIframeContent()") Export
+      div Made effortlessly with Creyex ✏️
+    iframe#contentFrame(src=`/creation/previewRaw?creation=${creation.id}`)

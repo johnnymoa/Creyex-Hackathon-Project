@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-center
+    .card.p-4
+      .card-body
+        h3.text-center.mb-4 Sign in
+        form(method='POST')
+          input(type='hidden', name='_csrf', value=_csrf)
+          .form-group.mb-3
+            label.col-form-label.font-weight-bold(for='email') Email
+            input.form-control(type='email', name='email', id='email', placeholder='Email', autofocus, autocomplete='email', required)
+          .form-group.mb-3
+            label.col-form-label.font-weight-bold(for='password') Password
+            input.form-control(type='password', name='password', id='password', placeholder='Password', autocomplete='current-password', required)
+          .form-group.text-center
+            button.btn.btn-primary(type='submit')
+              i.far.fa-user.fa-sm.iconpadding
+              | Login
+          .text-center.mt-2
+            a.btn.btn-link(href='/signup') Not registered yet?
+
+        //- a.btn.btn-link(href='/forgot') Forgot your password?
+    //- .form-group
+    //-   .offset-md-3.col-md-7.pl-2
+    //-     hr
+    //- .form-group
+    //-   .offset-md-3.col-md-7.pl-2.d-grid.gap-2
+    //-     a.btn.btn-block.btn-google.btn-social(href='/auth/google' disabled)
+    //-       i.fab.fa-google.fa-xs
+    //-       | Sign in with Google
+    //-     a.btn.btn-block.btn-github.btn-social(href='/auth/github' disabled)
+    //-       i.fab.fa-github.fa-sm
+    //-       | Sign in with GitHub
+    

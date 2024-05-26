@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+  .container
+    .row.my-5
+      .col-12
+        h1 Create a New Guide
+        p.lead Fill in the details below to create a new guide.
+
+    .row
+      .col-12
+        form(action="/guides/new" method="POST")
+          input(type="hidden" name="_csrf" value=_csrf) 
+          .mb-3
+            label(for="title") Title
+            input#title.form-control(type="text" name="title" required placeholder="Enter the guide title")
+          .mb-3
+            label(for="description") Description
+            textarea#description.form-control(name="description" rows="4" required placeholder="Enter the guide description")
+          .mb-3
+            label(for="prompt") Prompt
+            textarea#prompt.form-control(name="prompt" rows="6" required placeholder="Enter the guide prompt")
+          button.btn.btn-primary(type="submit") Create Guide
