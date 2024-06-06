@@ -152,11 +152,13 @@ app.post('/account/delete', passportConfig.isAuthenticated, userController.postD
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 
 app.get('/creation/new',passportConfig.isAuthenticated,creationController.new)
+app.post('/creation/send-message',passportConfig.isAuthenticated, creationController.sendOpen4oMessage)
+app.get('/creation/delete',passportConfig.isAuthenticated, creationController.delete)
+
 
 //integrated multiple endpoints, not sure what to do with this yet
-app.post('/creation/send-message',passportConfig.isAuthenticated, creationController.sendMessage)
-app.post('/creation/som',passportConfig.isAuthenticated, creationController.sendOpenMessage)
-app.post('/creation/sqm',passportConfig.isAuthenticated, creationController.sendGroqMessage)
+// app.post('/creation/som',passportConfig.isAuthenticated, creationController.sendOpenMessage)
+// app.post('/creation/sqm',passportConfig.isAuthenticated, creationController.sendGroqMessage)
 
 app.post('/creation/new', creationController.createCreation);
 app.get('/creation/preview', creationController.preview);
@@ -168,11 +170,6 @@ app.post('/guides/new',passportConfig.isAuthenticated,guideController.postNew)
 /**
  * OAuth authentication routes. (Sign in)
  */
-
-app.get('/auth/github', passport.authenticate('github'));
-app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), (req, res) => {
-  res.redirect(req.session.returnTo || '/');
-});
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets.readonly'], accessType: 'offline', prompt: 'consent' }));
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
   res.redirect(req.session.returnTo || '/');

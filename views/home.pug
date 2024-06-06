@@ -72,7 +72,7 @@ block content
                 .d-flex.justify-content-start.mt-2(style="margin-top: auto;")
                   a(target="_blank" href=`/creation/preview?creation=${creation.id}` class="btn btn-outline-primary btn-sm me-2") Preview
                   a(href=`/creation/new?src=${creation.id}` class="btn btn-outline-primary btn-sm me-2" ) Adapt
-                  //- a(href="/creations/#{creation._id}/delete" class="btn btn-outline-danger btn-sm") Delete
+                  a(href=`/creation/delete?creation=${creation.id}` class="btn btn-outline-primary btn-sm me-2" ) Delete
 
       .row.mt-5
         .col-12.text-center
