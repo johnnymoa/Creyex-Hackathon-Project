@@ -15,8 +15,3 @@ We're proud to have created a platform that bridges the gap between technical an
 
 # What we learned
 Through this project, we learned the importance of ruthlessly prioritizing and having a good boilerplate. Extensive work with prompt engineering over the past year gave us a clear vision of what's possible and allowed us to test various ideas effectively.
-
-# What's next for Creyex
-I have a fair backlog of features and security checks I want to implement in the hopes of getting Creyex into production ASAP. Eager to foster a small number of creative users to drive the product with feedback and grow it organically into its full potential.
-
-Keep an eye out on [creyex.com](https://creyex.com), I bought the domain.
